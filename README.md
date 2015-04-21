@@ -849,7 +849,7 @@ if (great)
   return ([self fontTraits] & NSFontBoldTrait) ? YES : NO;
 }
 
-//正确，逻辑操作符是可以直接转化为BOOL的
+//正确，逻辑操作符可以直接转化为BOOL
 - (BOOL)isValid {
   return [self stringValue] != nil;
 }
@@ -902,7 +902,7 @@ if (great)
 
 ###保证NSString在赋值时被复制
 
-`NSString`非常常用，在它被传递或者赋值时应当保证是以复制（copy）的方式进行的，这样可以保证在不知情的情况下String的值被其它对象修改。
+`NSString`非常常用，在它被传递或者赋值时应当保证是以复制（copy）的方式进行的，这样可以防止在不知情的情况下String的值被其它对象修改。
 
 ```objective-c
 - (void)setFoo:(NSString *)aFoo {
@@ -912,7 +912,7 @@ if (great)
 
 ###使用NSNumber的语法糖
 
-使用带有`@`符号的语法糖来生成NSNumber对象能使代码更简洁
+使用带有`@`符号的语法糖来生成NSNumber对象能使代码更简洁：
 
 ```objective-c
 NSNumber *fortyTwo = @42;
@@ -925,7 +925,7 @@ NSNumber *myEnum = @(kMyEnum);
 
 ###nil检查
 
-因为在Objective-C中向nil对象发送命令是不会抛出异常或者导致崩溃的，只是完全的“什么都不干”，所以，只在程序中使用nil来做逻辑上德检查。
+因为在Objective-C中向nil对象发送命令是不会抛出异常或者导致崩溃的，只是完全的“什么都不干”，所以，只在程序中使用nil来做逻辑上的检查。
 
 另外，不要使用诸如`nil == Object`或者`Object == nil`的形式来判断。
 
@@ -943,7 +943,7 @@ if (nil == objc) {
 
 ###属性的线程安全
 
-定义一个属性时，编译器会自动生成线程安全的存取方法（Atomic），但这样会大大降低性能，特别是对于那些需要频繁存取的属性来说，是极大的浪费。所以如果定义的属性不需要线程保护，记得手动添加属性关键字`nonatomic`来取消编译器自动优化。
+定义一个属性时，编译器会自动生成线程安全的存取方法（Atomic），但这样会大大降低性能，特别是对于那些需要频繁存取的属性来说，是极大的浪费。所以如果定义的属性不需要线程保护，记得手动添加属性关键字`nonatomic`来取消编译器的优化。
 
 ###点分语法的使用
 
@@ -962,7 +962,7 @@ array.release;
 
 ###Delegate要使用弱引用
 
-一个类的Delegate对象通常还引用着类本身，这样很容易造成引用循环的问题，所以一般类的Delegate属性要设置为弱引用。
+一个类的Delegate对象通常还引用着类本身，这样很容易造成引用循环的问题，所以类的Delegate属性要设置为弱引用。
 
 ```objective-c
 /** delegate */
