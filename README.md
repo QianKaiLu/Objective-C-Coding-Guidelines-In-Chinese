@@ -1,6 +1,8 @@
 # Objective-C-Coding-Guidelines-In-Chinese
 Objective-C编码规范，内容来自苹果、谷歌的文档翻译，自己的编码经验和对其它资料的总结。
 
+转载请注明出处。
+
 ##概要
 
 Objective-C是一门面向对象的动态编程语言，主要用于编写iOS和Mac应用程序。关于Objective-C的编码规范，苹果和谷歌都已经有很好的总结：
@@ -8,9 +10,7 @@ Objective-C是一门面向对象的动态编程语言，主要用于编写iOS和
 *	[Apple Coding Guidelines for Cocoa](https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/CodingGuidelines/CodingGuidelines.html)
 *	[Google Objective-C Style Guide](https://google-styleguide.googlecode.com/svn/trunk/objcguide.xml?showone=Line_Length#Line_Length)
 
-本文主要整合了对上述文档的翻译、作者自己的编程经验和其他的相关资料，为公司总结出一份通用的编码规范，也供中国的iOS开发者参考学习。
-
-
+本文主要整合了对上述文档的翻译、作者自己的编程经验和其他的相关资料，为公司总结出一份通用的编码规范。
 
 ##一些基本原则
 
@@ -197,7 +197,7 @@ void (^largeBlock)(void) = ^{
 
 ###数据结构的语法糖
 
-鼓励使用可读性更好的语法糖来构造`NSArray`，`NSDictionary`等数据结构。
+应该使用可读性更好的语法糖来构造`NSArray`，`NSDictionary`等数据结构，避免使用冗长的`alloc`,`init`方法。
 
 如果构造代码写在一行，需要在括号两端留有一个空格，使得被构造的元素于与构造语法区分开来：
 
@@ -543,4 +543,126 @@ Objective-C的方法名通常都比较长，这是为了让程序有更好地可
 - (NSArray *)childWindows;
 - (NSWindow *)parentWindow;
 - (void)setParentWindow:(NSWindow *)window;
+```
+
+###命名函数（Functions）
+
+在很多场合仍然需要用到函数，比如说如果一个对象是一个单例，那么应该使用函数来代替类方法执行相关操作。
+
+函数的命名和方法有一些不同，主要是：
+
+- 函数名称一般带有缩写前缀，表示方法所在的框架。
+- 前缀后的单词以“驼峰”表示法显示，第一个单词首字母大写。
+
+函数名的第一个单词通常是一个动词，表示方法执行的操作：
+
+```objective-c
+NSHighlightRect
+NSDeallocateObject
+```
+
+如果函数返回其参数的某个属性，省略动词：
+
+```objective-c
+unsigned int NSEventMaskFromType(NSEventType type)
+float NSHeight(NSRect aRect)
+```
+
+如果函数通过指针参数来返回值，需要在函数名中使用`Get`：
+
+```objective-c
+unsigned int NSEventMaskFromType(NSEventType type)
+float NSHeight(NSRect aRect)
+```
+
+函数的返回类型是BOOL时的命名：
+
+```objective-c
+BOOL NSDecimalIsNotANumber(const NSDecimal *decimal)
+```
+
+###命名属性和实例变量（Properties&Instance Variables）
+
+属性和对象的存取方法相关联，属性的第一个字母小写，后续单词首字母大写，不必添加前缀。属性按功能命名成名词或者动词：
+
+```objective-c
+//名词属性
+@property (strong) NSString *title;
+
+//动词属性
+@property (assign) BOOL showsAlpha;
+```
+
+属性也可以命名成形容词，这时候通常会指定一个带有`is`前缀的get方法来提高可读性：
+
+```objective-c
+@property (assign, getter=isEditable) BOOL editable;
+```
+
+命名实例变量，在变量名前加上`_`前缀（*有些有历史的代码会将`_`放在后面*），其它和命名属性一样：
+
+```objective-c
+@implementation MyClass {
+    BOOL _showsTitle;
+}
+```
+
+一般来说，类需要对使用者隐藏数据存储的细节，所以不要将实例方法定义成公共可访问的接口，可以使用`@private`，`@protected`前缀。
+
+*按苹果的说法，不建议在除了`init`和`dealloc`方法以外的地方直接访问实例变量，但很多人认为直接访问会让代码更加清晰可读，只在需要计算或者执行操作的时候才使用存取方法访问，我就是这种习惯，所以这里不作要求。*
+
+
+###命名常量（Constants）
+
+如果要定义一组相关的常量，尽量使用枚举类型（enumerations），枚举类型的命名规则和函数的命名规则相同：
+
+```objective-c
+//定义一个枚举，注意带有`_`的名称是不会被使用的
+typedef enum _NSMatrixMode {
+    NSRadioModeMatrix           = 0,
+    NSHighlightModeMatrix       = 1,
+    NSListModeMatrix            = 2,
+    NSTrackModeMatrix           = 3
+} NSMatrixMode;
+```
+
+使用匿名枚举定义bit map：
+
+```objective-c
+enum {
+    NSBorderlessWindowMask      = 0,
+    NSTitledWindowMask          = 1 << 0,
+    NSClosableWindowMask        = 1 << 1,
+    NSMiniaturizableWindowMask  = 1 << 2,
+    NSResizableWindowMask       = 1 << 3
+};
+```
+
+使用`const`定义浮点型或者单个的整数型常量，如果要定义一组相关的整数常量，应该优先使用枚举。常量的命名规范和函数相同：
+
+```objective-c
+const float NSLightGray;
+```
+
+不要使用`#define`宏来定义常量，如果是整型常量，尽量使用枚举，浮点型常量，使用`const`定义。`#define`通常用来给编译器决定是否编译某块代码，比如常用的：
+
+```objective-c
+#ifdef DEBUG
+```
+
+注意到一般由编译器定义的宏会在前后都有一个`__`，比如`__MACH__`。
+
+###命名通知（Notifications）
+
+通知常用于在模块间传递消息，所以通知要尽可能地表示出发生的事件，通知的命名范式是：
+	
+	[触发通知的类名] + [Did | Will] + [动作] + Notification
+
+栗子：
+
+```objective-c
+NSApplicationDidBecomeActiveNotification
+NSWindowDidMiniaturizeNotification
+NSTextViewDidChangeSelectionNotification
+NSColorPanelColorDidChangeNotification
 ```
