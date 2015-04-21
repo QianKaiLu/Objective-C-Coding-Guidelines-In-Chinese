@@ -12,13 +12,6 @@ Objective-C是一门面向对象的动态编程语言，主要用于编写iOS和
 
 本文主要整合了对上述文档的翻译、作者自己的编程经验和其他的相关资料，为公司总结出一份通用的编码规范。
 
-##一些基本原则
-
-在详细介绍各种规范前，先总结一下Objective-C编程的基本原则。
-
-###使用ARC
-
-除非想要兼容一些古董级的机器和操作系统，我们没有理由放弃使用ARC。在最新版的Xcode(6.2)中，ARC是自动打开的，所以直接使用就好了。
 
 ##代码格式
 
@@ -650,7 +643,7 @@ const float NSLightGray;
 #ifdef DEBUG
 ```
 
-注意到一般由编译器定义的宏会在前后都有一个`__`，比如`__MACH__`。
+注意到一般由编译器定义的宏会在前后都有一个`__`，比如*`__MACH__`*。
 
 ###命名通知（Notifications）
 
@@ -779,5 +772,199 @@ NSColorPanelColorDidChangeNotification
 // Remember to call |StringWithoutSpaces("foo bar baz")|
 ```
 
-**定义在头文件里的接口方法、属性必须要有注释**
+**定义在头文件里的接口方法、属性必须要有注释！**
 
+##编码风格
+
+每个人都有自己的编码风格，这里总结了一些比较好的Cocoa编程风格和注意点。
+
+###不要使用new方法
+
+尽管很多时候能用`new`代替`alloc init`方法，但这可能会导致调试内存时出现不可预料的问题。Cocoa的规范就是使用`alloc init`方法，使用`new`会让一些读者困惑。
+
+###Public API要尽量简洁
+
+共有接口要设计的简洁，满足核心的功能需求就可以了。不要设计很少会被用到，但是参数极其复杂的API。如果要定义复杂的方法，使用类别或者类扩展。
+
+###\#import和\#include
+
+`#import`是Cocoa中常用的引用头文件的方式，它能自动防止重复引用文件，什么时候使用`#import`，什么时候使用`#include`呢？
+
+- 当引用的是一个Objective-C或者Objective-C++的头文件时，使用`#import`
+- 当引用的是一个C或者C++的头文件时，使用`#include`，这时必须要保证被引用的文件提供了保护域（#define guard）。
+
+栗子：
+
+```objective-c
+#import <Cocoa/Cocoa.h>
+#include <CoreFoundation/CoreFoundation.h>
+#import "GTMFoo.h"
+#include "base/basictypes.h"
+```
+
+为什么不全部使用`#import`呢？主要是为了保证代码在不同平台间共享时不出现问题。
+
+###引用框架的根头文件
+
+上面提到过，每一个框架都会有一个和框架同名的头文件，它包含了框架内接口的所有引用，在使用框架的时候，应该直接引用这个根头文件，而不是其它子模块的头文件，即使是你只用到了其中的一小部分，编译器会自动完成优化的。
+
+```objective-c
+//正确，引用根头文件
+#import <Foundation/Foundation.h>
+
+//错误，不要单独引用框架内的其它头文件
+#import <Foundation/NSArray.h>
+#import <Foundation/NSString.h>
+```
+
+###BOOL的使用
+
+BOOL在Objective-C中被定义为`signed char`类型，这意味着一个BOOL类型的变量不仅仅可以表示`YES`(1)和`NO`(0)两个值，所以永远**不要**将BOOL类型变量直接和`YES`比较：
+
+```objective-c
+//错误，无法确定|great|的值是否是YES(1)，不要将BOOL值直接与YES比较
+BOOL great = [foo isGreat];
+if (great == YES)
+  // ...be great!
+
+//正确
+BOOL great = [foo isGreat];
+if (great)
+  // ...be great!
+```
+
+同样的，也不要将其它类型的值作为BOOL来返回，这种情况下，BOOL变量只会取值的最后一个字节来赋值，这样很可能会取到0（NO）。但是，一些逻辑操作符比如`&&`,`||`,`!`的返回是可以直接赋给BOOL的：
+
+```objective-c
+//错误，不要将其它类型转化为BOOL返回
+- (BOOL)isBold {
+  return [self fontTraits] & NSFontBoldTrait;
+}
+- (BOOL)isValid {
+  return [self stringValue];
+}
+
+//正确
+- (BOOL)isBold {
+  return ([self fontTraits] & NSFontBoldTrait) ? YES : NO;
+}
+
+//正确，逻辑操作符是可以直接转化为BOOL的
+- (BOOL)isValid {
+  return [self stringValue] != nil;
+}
+- (BOOL)isEnabled {
+  return [self isValid] && [self isBold];
+}
+```
+
+另外BOOL类型可以和`_Bool`,`bool`相互转化，但是**不能**和`Boolean`转化。
+
+###使用ARC
+
+除非想要兼容一些古董级的机器和操作系统，我们没有理由放弃使用ARC。在最新版的Xcode(6.2)中，ARC是自动打开的，所以直接使用就好了。
+
+###在init和dealloc中不要用存取方法访问实例变量
+
+当`init``dealloc`方法被执行时，类的运行时环境不是处于正常状态的，使用存取方法访问变量可能会导致不可预料的结果，因此应当在这两个方法内直接访问实例变量。
+
+```objective-c
+//正确，直接访问实例变量
+- (instancetype)init {
+  self = [super init];
+  if (self) {
+    _bar = [[NSMutableString alloc] init];
+  }
+  return self;
+}
+- (void)dealloc {
+  [_bar release];
+  [super dealloc];
+}
+
+//错误，不要通过存取方法访问
+- (instancetype)init {
+  self = [super init];
+  if (self) {
+    self.bar = [NSMutableString string];
+  }
+  return self;
+}
+- (void)dealloc {
+  self.bar = nil;
+  [super dealloc];
+}
+```
+
+###按照定义的顺序释放资源
+
+在类或者Controller的生命周期结束时，往往需要做一些扫尾工作，比如释放资源，停止线程等，这些扫尾工作的释放顺序应当与它们的初始化或者定义的顺序保持一致。这样做是为了方便调试时寻找错误，也能防止遗漏。
+
+###保证NSString在赋值时被复制
+
+`NSString`非常常用，在它被传递或者赋值时应当保证是以复制（copy）的方式进行的，这样可以保证在不知情的情况下String的值被其它对象修改。
+
+```objective-c
+- (void)setFoo:(NSString *)aFoo {
+  _foo = [aFoo copy];
+}
+```
+
+###使用NSNumber的语法糖
+
+使用带有`@`符号的语法糖来生成NSNumber对象能使代码更简洁
+
+```objective-c
+NSNumber *fortyTwo = @42;
+NSNumber *piOverTwo = @(M_PI / 2);
+enum {
+  kMyEnum = 2;
+};
+NSNumber *myEnum = @(kMyEnum);
+```
+
+###nil检查
+
+因为在Objective-C中向nil对象发送命令是不会抛出异常或者导致崩溃的，只是完全的“什么都不干”，所以，只在程序中使用nil来做逻辑上德检查。
+
+另外，不要使用诸如`nil == Object`或者`Object == nil`的形式来判断。
+
+```objective-c
+//正确，直接判断
+if (!objc) {
+	...	
+}
+
+//错误，不要使用nil == Object的形式
+if (nil == objc) {
+	...	
+}
+```
+
+###属性的线程安全
+
+定义一个属性时，编译器会自动生成线程安全的存取方法（Atomic），但这样会大大降低性能，特别是对于那些需要频繁存取的属性来说，是极大的浪费。所以如果定义的属性不需要线程保护，记得手动添加属性关键字`nonatomic`来取消编译器自动优化。
+
+###点分语法的使用
+
+不要用点分语法来调用方法，只用来访问属性。这样是为了防止代码可读性问题。
+
+```objective-c
+//正确，使用点分语法访问属性
+NSString *oldName = myObject.name;
+myObject.name = @"Alice";
+
+//错误，不要用点分语法调用方法
+NSArray *array = [NSArray arrayWithObject:@"hello"];
+NSUInteger numberOfItems = array.count;
+array.release;
+```
+
+###Delegate要使用弱引用
+
+一个类的Delegate对象通常还引用着类本身，这样很容易造成引用循环的问题，所以一般类的Delegate属性要设置为弱引用。
+
+```objective-c
+/** delegate */
+@property (nonatomic, weak) id <IPCConnectHandlerDelegate> delegate;
+```
