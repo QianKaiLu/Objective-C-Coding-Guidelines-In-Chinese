@@ -436,11 +436,11 @@ Objective-C的方法名通常都比较长，这是为了让程序有更好地可
 - (void)setTitle:(NSString *)aTitle;
 
 //属性是一个形容词时存取方法的范式
-- (NSString *)title;
-- (void)setTitle:(NSString *)aTitle;
-//栗子
 - (BOOL)isAdjective;
 - (void)setAdjective:(BOOL)flag;
+//栗子
+- (BOOL)isEditable;
+- (void)setEditable:(BOOL)flag;
 
 //属性是一个动词时存取方法的范式
 - (BOOL)verbObject;
@@ -564,8 +564,7 @@ float NSHeight(NSRect aRect)
 如果函数通过指针参数来返回值，需要在函数名中使用`Get`：
 
 ```objective-c
-unsigned int NSEventMaskFromType(NSEventType type)
-float NSHeight(NSRect aRect)
+const char *NSGetSizeAndAlignment(const char *typePtr, unsigned int *sizep, unsigned int *alignp)
 ```
 
 函数的返回类型是BOOL时的命名：
@@ -607,22 +606,23 @@ BOOL NSDecimalIsNotANumber(const NSDecimal *decimal)
 
 ###命名常量（Constants）
 
-如果要定义一组相关的常量，尽量使用枚举类型（enumerations），枚举类型的命名规则和函数的命名规则相同：
+如果要定义一组相关的常量，尽量使用枚举类型（enumerations），枚举类型的命名规则和函数的命名规则相同。
+建议使用 `NS_ENUM` 和 `NS_OPTIONS` 宏来定义枚举类型，参见官方的 [Adopting Modern Objective-C](https://developer.apple.com/library/ios/releasenotes/ObjectiveC/ModernizationObjC/AdoptingModernObjective-C/AdoptingModernObjective-C.html) 一文：
 
 ```objective-c
-//定义一个枚举，注意带有`_`的名称是不会被使用的
-typedef enum _NSMatrixMode {
-    NSRadioModeMatrix           = 0,
-    NSHighlightModeMatrix       = 1,
-    NSListModeMatrix            = 2,
-    NSTrackModeMatrix           = 3
-} NSMatrixMode;
+//定义一个枚举
+typedef NS_ENUM(NSInteger, NSMatrixMode) {
+    NSRadioModeMatrix,
+    NSHighlightModeMatrix,
+    NSListModeMatrix,
+    NSTrackModeMatrix
+};
 ```
 
-使用匿名枚举定义bit map：
+定义bit map：
 
 ```objective-c
-enum {
+typedef NS_OPTIONS(NSUInteger, NSWindowMask) {
     NSBorderlessWindowMask      = 0,
     NSTitledWindowMask          = 1 << 0,
     NSClosableWindowMask        = 1 << 1,
