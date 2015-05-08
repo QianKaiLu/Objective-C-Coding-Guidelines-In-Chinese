@@ -606,22 +606,23 @@ BOOL NSDecimalIsNotANumber(const NSDecimal *decimal)
 
 ###命名常量（Constants）
 
-如果要定义一组相关的常量，尽量使用枚举类型（enumerations），枚举类型的命名规则和函数的命名规则相同：
+如果要定义一组相关的常量，尽量使用枚举类型（enumerations），枚举类型的命名规则和函数的命名规则相同。
+建议使用 `NS_ENUM` 和 `NS_OPTIONS` 宏来定义枚举类型，参见官方的 [Adopting Modern Objective-C](https://developer.apple.com/library/ios/releasenotes/ObjectiveC/ModernizationObjC/AdoptingModernObjective-C/AdoptingModernObjective-C.html) 一文：
 
 ```objective-c
-//定义一个枚举，注意带有`_`的名称是不会被使用的
-typedef enum _NSMatrixMode {
-    NSRadioModeMatrix           = 0,
-    NSHighlightModeMatrix       = 1,
-    NSListModeMatrix            = 2,
-    NSTrackModeMatrix           = 3
-} NSMatrixMode;
+//定义一个枚举
+typedef NS_ENUM(NSInteger, NSMatrixMode) {
+    NSRadioModeMatrix,
+    NSHighlightModeMatrix,
+    NSListModeMatrix,
+    NSTrackModeMatrix
+};
 ```
 
-使用匿名枚举定义bit map：
+定义bit map：
 
 ```objective-c
-enum {
+typedef NS_OPTIONS(NSUInteger, NSWindowMask) {
     NSBorderlessWindowMask      = 0,
     NSTitledWindowMask          = 1 << 0,
     NSClosableWindowMask        = 1 << 1,
