@@ -436,11 +436,11 @@ Objective-C的方法名通常都比较长，这是为了让程序有更好地可
 - (void)setTitle:(NSString *)aTitle;
 
 //属性是一个形容词时存取方法的范式
-- (NSString *)title;
-- (void)setTitle:(NSString *)aTitle;
-//栗子
 - (BOOL)isAdjective;
 - (void)setAdjective:(BOOL)flag;
+//栗子
+- (BOOL)isEditable;
+- (void)setEditable:(BOOL)flag;
 
 //属性是一个动词时存取方法的范式
 - (BOOL)verbObject;
@@ -564,8 +564,7 @@ float NSHeight(NSRect aRect)
 如果函数通过指针参数来返回值，需要在函数名中使用`Get`：
 
 ```objective-c
-unsigned int NSEventMaskFromType(NSEventType type)
-float NSHeight(NSRect aRect)
+const char *NSGetSizeAndAlignment(const char *typePtr, unsigned int *sizep, unsigned int *alignp)
 ```
 
 函数的返回类型是BOOL时的命名：
