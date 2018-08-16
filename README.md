@@ -37,7 +37,7 @@ Objective-C 是一门面向对象的动态编程语言，主要用于编写iOS�
 如果一个函数有特别多的参数或者名称很长，应该将其按照`:`来对齐分行显示：
 
 ```objective-c
--(id)initWithModel:(IPCModle)model
+- (id)initWithModel:(IPCModle)model
        ConnectType:(IPCConnectType)connectType
         Resolution:(IPCResolution)resolution
           AuthName:(NSString *)authName
@@ -60,6 +60,40 @@ Objective-C 是一门面向对象的动态编程语言，主要用于编写iOS�
     ...
 }
 ```
+### 括号的换行
+
+关于括号是不是要换行，一直是程序员们乐此不疲争论的一个梗，但我们推荐：
+
+将带有分支的代码（`if`, `else`, `switch`, `while` 等等）和上一个分支的结束括号（`)`, `}`），以及自己分支的开始括号（`(`, `{`）放在同一行，来保证代码的紧凑可读。
+
+```objective-c
+
+// 不推荐
+if (user.isHappy)
+{
+    // ...
+}
+else 
+{
+    // ...
+}
+
+// 推荐
+if (something) {
+  // ...
+} else {
+  // ...
+}
+
+// 推荐
+[UIView animateWithDuration:1.0 animations:^{
+  // ...
+} completion:^(BOOL finished) {
+  // ...
+}];
+
+```
+
 ### 函数调用
 
 函数调用的格式和书写差不多，可以按照函数的长短来选择写在一行或者分成多行：
@@ -288,12 +322,12 @@ setBkgdColor:
 ```objective-c
 alloc   == Allocate					max    == Maximum
 alt     == Alternate				min    == Minimum
-app     == Application				msg    == Message
+app     == Application			msg    == Message
 calc    == Calculate				nib    == Interface Builder archive
 dealloc == Deallocate				pboard == Pasteboard
 func    == Function					rect   == Rectangle
 horiz   == Horizontal				Rep    == Representation (used in class name such as NSBitmapImageRep).
-info    == Information				temp   == Temporary
+info    == Information			temp   == Temporary
 init    == Initialize				vert   == Vertical
 int     == Integer
 ```
@@ -312,23 +346,58 @@ displayName
 
 整个工程的命名风格要保持一致性，最好和苹果SDK的代码保持统一。不同类中完成相似功能的方法应该叫一样的名字，比如我们总是用`count`来返回集合的个数，不能在A类中使用`count`而在B类中使用`getNumber`。
 
+#### 语言
+
+总是使用英语命名变量而不是拼音甚至中文：
+
+```objective-c
+// 正确，表示诊疗记录
+medicalRecord
+
+// 错误，不要使用拼音命名！
+zhengLiaoJiLu
+```
+
 ### 使用前缀
 
-如果代码需要打包成Framework给别的工程使用，或者工程项目非常庞大，需要拆分成不同的模块，使用命名前缀是非常有用的。
+如果代码需要打包成 Framework 给别的工程使用，或者工程项目非常庞大，需要拆分成不同的模块，使用命名前缀是非常有用的。
 
-- 前缀由大写的字母缩写组成，比如Cocoa中`NS`前缀代表Founation框架中的类，`IB`则代表Interface Builder框架。
+- 前缀由大写的字母缩写组成，比如 Cocoa 中 `NS` 前缀代表 Founation 框架中的类，`IB` 则代表 Interface Builder 框架。
 
-- 可以在为类、协议、函数、常量以及typedef宏命名的时候使用前缀，但注意**不要**为成员变量或者方法使用前缀，因为他们本身就包含在类的命名空间内。
+- 可以在为类、协议、函数、常量以及 typedef 宏命名的时候使用前缀，但注意**不要**为成员变量或者方法使用前缀，因为他们本身就包含在类的命名空间内。
 
-- 命名前缀的时候不要和苹果SDK框架冲突。
+- 命名前缀的时候不要和苹果 SDK 框架冲突。
+
+```objective-c
+// 使用 XR（杏仁首字母）前缀，表示 App 业务模块的组件
+@interface XRPhotoAssetsViewController : KCFViewController
+
+// ...
+@end
+```
 
 ### 命名类和协议（Class&Protocol）
 
-类名以大写字母开头，应该包含一个*名词*来表示它代表的对象类型，同时可以加上必要的前缀，比如`NSString`, `NSDate`, `NSScanner`, `NSApplication`等等。
+类名以大写字母开头，应该包含一个*名词*来表示它代表的对象类型，同时可以加上必要的前缀，比如 `NSString`, `NSDate`, `NSScanner`, `NSApplication` 等等：
 
-而协议名称应该清晰地表示它所执行的行为，而且要和类名区别开来，所以通常使用`ing`词尾来命名一个协议，比如`NSCopying`,`NSLocking`。
+```objective-c
+// 使用一个名词（player）来命名类
+@interface XRVideoPlayer : NSObject
+...
+@end
+```
 
-有些协议本身包含了很多不相关的功能，主要用来为某一特定类服务，这时候可以直接用类名来命名这个协议，比如`NSObject`协议，它包含了id对象在生存周期内的一系列方法。
+而协议名称应该清晰地表示它所执行的行为，而且要和类名区别开来，所以通常使用 `ing` 词尾来命名一个协议，比如 `NSCopying`, `NSLocking`：
+
+```objective-c
+
+// 使用 ing 结尾的动词来命名表示行为的协议
+@protocol XRVersionUpdateProtocol <NSObject>
+...
+@end
+```
+
+有些协议本身包含了很多不相关的功能，主要用来为某一特定类服务，这时候可以直接用类名来命名这个协议，比如 `NSObject` 协议，它包含了 id 对象在生存周期内的一系列方法。
 
 ### 命名头文件（Headers）
 
@@ -714,7 +783,13 @@ NSColorPanelColorDidChangeNotification
 
 ### 代码注释
 
-好的代码应该是“自解释”（self-documenting）的，但仍然需要详细的注释来说明参数的意义、返回值、功能以及可能的副作用。
+好的代码应该是“自解释”（self-documenting）的，因此对代码块的注释应该更注重说明**为什么这么做**，而不是**做了什么**。
+
+如果容易混淆，我们可以适当地说明参数的意义、返回值、功能以及可能的副作用。
+
+注释应该跟随代码进行更新和删除，保证对应。
+
+注释对语言没有要求，使用中文英文都可以，只要保证**清晰**和**简洁**，避免大段冗长的注释和无用多余的注释。
 
 方法、函数、类、协议、类别的定义都需要注释，推荐采用Apple的标准注释风格，好处是可以在引用的地方 `alt+点击`自动弹出注释，非常方便。
 
@@ -723,19 +798,12 @@ Xcode自带注释快捷键：`option` + `command` + `/`。
 一些良好的注释：
 
 ```objective-c
+
 /**
  *  Create a new preconnector to replace the old one with given mac address.
  *  NOTICE: We DO NOT stop the old preconnector, so handle it by yourself.
- *
- *  @param type       Connect type the preconnector use.
- *  @param macAddress Preconnector's mac address.
  */
 - (void)refreshConnectorWithConnectType:(IPCConnectType)type  Mac:(NSString *)macAddress;
-
-/**
- *  Stop current preconnecting when application is going to background.
- */
-- (void)stopRunning;
 
 /**
  *  Get the COPY of cloud device with a given mac address.
@@ -757,29 +825,69 @@ Xcode自带注释快捷键：`option` + `command` + `/`。
 协议、委托的注释要明确说明其被触发的条件：
 
 ```objective-c
-/** Delegate - Sent when failed to init connection, like p2p failed. */
+/** Sent when failed to init connection, like p2p failed. */
 -(void)initConnectionDidFailed:(IPCConnectHandler *)handler;
 ```
 
-如果在注释中要引用参数名或者方法函数名，使用`||`将参数或者方法括起来以避免歧义：
-
-```objective-c
-// Sometimes we need |count| to be less than zero.
-
-// Remember to call |StringWithoutSpaces("foo bar baz")|
-```
-
-**定义在头文件里的接口方法、属性必须要有注释！**
-
 ## 编码风格
 
-每个人都有自己的编码风格，这里总结了一些比较好的Cocoa编程风格和注意点。
+这里列举了一些我们推荐的 Cocoa 编程风格和注意点。
 
-### 不要使用new方法
+### 使用 `#pragma mark` 为代码分块
+
+在方法较多的源文件中，使用 `#pragma mark` 标记符来为不同功能的代码进行分块：
+
+```objective-c
+// 一个使用 #pragma mark 进行分块的源文件代码结构
+@implementation XRVideoPlayerViewController
+
+#pragma mark - Public
+
++ (instancetype)playerWithUrl:(NSURL *)url {}
++ (void)play:(NSURL *)url {}
+
+#pragma mark - LifeCycle
+
+- (void)viewDidLoad {}
+- (void)dealloc {}
+
+#pragma mark - Configs
+
+- (void)preparePlayer {}
+- (void)initPlayerView {}
+
+#pragma mark - Actions
+
+- (void)longPress:(UILongPressGestureRecognizer *)gesture {}
+
+#pragma mark - XRVideoPlayerControlDelegate
+
+- (void)controlDidPaused {}
+- (void)controlDidStarted {}
+- (void)controlDidClose {}
+
+#pragma mark - Properties
+
+- (UIView *)playerView {}
+- (void)setUrl:(NSURL *)url {}
+
+#pragma mark - Utilities
+
+- (void)showNoWifiToast {}
+- (void)saveToAlbum {}
+
+#pragma mark - Overide
+
+- (BOOL)prefersStatusBarHidden {}
+
+@end
+```
+
+### 不要使用 new 方法
 
 尽管很多时候能用`new`代替`alloc init`方法，但这可能会导致调试内存时出现不可预料的问题。Cocoa的规范就是使用`alloc init`方法，使用`new`会让一些读者困惑。
 
-### Public API要尽量简洁
+### Public API 要尽量简洁
 
 共有接口要设计的简洁，满足核心的功能需求就可以了。不要设计很少会被用到，但是参数极其复杂的API。如果要定义复杂的方法，使用类别或者类扩展。
 
