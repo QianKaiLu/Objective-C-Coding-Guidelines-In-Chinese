@@ -1,6 +1,8 @@
 # Objective-C-Coding-Guidelines-In-Chinese
 [杏仁医生](https://www.xingren.com) Objective-C 编码规范。
 
+另外有一份 [CodeReview 指南](./CodeReview.md)
+
 转载请注明出处。
 
 ## 概要
@@ -317,18 +319,18 @@ setBackgroundColor:
 destSel
 setBkgdColor:
 ```
-然而，有部分单词简写在Objective-C编码过程中是非常常用的，以至于成为了一种规范，这些简写可以在代码中直接使用，下面列举了部分：
+然而，有部分单词简写在 Objective-C 编码过程中是非常常用的，以至于成为了一种规范，这些简写可以在代码中直接使用，下面列举了部分：
 
 ```objective-c
-alloc   == Allocate					max    == Maximum
-alt     == Alternate				min    == Minimum
-app     == Application			msg    == Message
-calc    == Calculate				nib    == Interface Builder archive
-dealloc == Deallocate				pboard == Pasteboard
-func    == Function					rect   == Rectangle
-horiz   == Horizontal				Rep    == Representation (used in class name such as NSBitmapImageRep).
-info    == Information			temp   == Temporary
-init    == Initialize				vert   == Vertical
+alloc   == Allocate         max    == Maximum
+alt     == Alternate        min    == Minimum
+app     == Application      msg    == Message
+calc    == Calculate        nib    == Interface Builder archive
+dealloc == Deallocate       pboard == Pasteboard
+func    == Function         rect   == Rectangle
+horiz   == Horizontal       Rep    == Representation (used in class name such as NSBitmapImageRep).
+info    == Information      temp   == Temporary
+init    == Initialize       vert   == Vertical
 int     == Integer
 ```
 
